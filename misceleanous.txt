@@ -1,0 +1,18 @@
+
+
+//signup response
+{
+    "status": "success",
+    "message": "Signup successful",
+    "data": {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA4MDc4MzI3NjYxIiwic3ViIjoiMDgwNzgzMjc2NjEiLCJpYXQiOjE3ODU5MTc5MjIsImV4cCI6MTc4NjAwNDMyMn0.Xpk45eibzezjzZruBeiISkKDx-2IaHHiCx7hP4m40BQ",
+        "tokenType": "Bearer",
+        "expiresIn": 86400,
+        "user": {
+            "phoneNumber": "08078327661",
+            "balance": 0,
+            "created": "2026-08-05T08:18:42.631Z"
+        }
+    },
+    "requestId": "44283f8e673c6ffcae69d421ff2a83db"
+}
