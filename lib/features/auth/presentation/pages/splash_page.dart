@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/services/onboarding_storage.dart';
 import '../../../../core/services/token_storage.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../widgets/animated_aurora_background.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -13,15 +15,34 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _entranceController;
+  late final Animation<double> _fade;
+  late final Animation<double> _scale;
+
   @override
   void initState() {
     super.initState();
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..forward();
+    _fade = CurvedAnimation(parent: _entranceController, curve: Curves.easeOut);
+    _scale = Tween<double>(begin: 0.86, end: 1.0).animate(
+      CurvedAnimation(parent: _entranceController, curve: Curves.easeOutBack),
+    );
     _initializeApp();
   }
 
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
+  }
+
   Future<void> _initializeApp() async {
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+    await Future<void>.delayed(const Duration(milliseconds: 1100));
     final hasOnboarded = await OnboardingStorage.instance
         .hasCompletedOnboarding();
     final hasToken = await TokenStorage.instance.hasToken();
@@ -43,52 +64,71 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 52),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              theme.colorScheme.primary,
-              theme.colorScheme.primary.withAlpha(224),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Image.asset('assets/images/logo.png', width: 48),
-                const SizedBox(width: 14),
-                Text(
-                  'BankDump',
-                  style: AppTextStyles.brand.copyWith(color: Colors.white),
+      body: AnimatedAuroraBackground(
+        child: SafeArea(
+          child: Center(
+            child: FadeTransition(
+              opacity: _fade,
+              child: ScaleTransition(
+                scale: _scale,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 88,
+                        height: 88,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(
+                            colors: [AppColors.cta, AppColors.secondary],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.cta.withValues(alpha: 0.4),
+                              blurRadius: 30,
+                              offset: const Offset(0, 16),
+                            ),
+                          ],
+                        ),
+                        child: Image.asset('assets/images/bankDumpLogo.png'),
+                      ),
+                      const SizedBox(height: 26),
+                      Text(
+                        'BankDump',
+                        style: AppTextStyles.brand.copyWith(
+                          color: AppColors.surface,
+                          fontSize: 34,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Send, save, and track your money — all in one place.',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.subtitle.copyWith(
+                          color: AppColors.surface.withValues(alpha: 0.85),
+                        ),
+                      ),
+                      const SizedBox(height: 44),
+                      SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          color: AppColors.surface.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              'Deliver faster. Manage smarter.',
-              style: theme.textTheme.displaySmall?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                height: 1.1,
               ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Local logistics made easy for merchants and couriers.',
-              style: AppTextStyles.subtitle.copyWith(color: Colors.white70),
-            ),
-            const SizedBox(height: 40),
-            const Center(child: CircularProgressIndicator(color: Colors.white)),
-          ],
+          ),
         ),
       ),
     );

@@ -17,25 +17,41 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final _emailController = TextEditingController(text: 'demo@bankdump.app');
+  final _phoneController = TextEditingController(text: '08011112222');
   final _passwordController = TextEditingController(text: 'password123');
+  String? _validationError;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
+    setState(() => _validationError = null);
+
+    final phoneNumber = _phoneController.text.trim();
+    final password = _passwordController.text;
+
+    if (phoneNumber.isEmpty || password.isEmpty) {
+      setState(
+        () => _validationError = 'Phone number and password are required.',
+      );
+      return;
+    }
+
+    if (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(phoneNumber)) {
+      setState(() => _validationError = 'Enter a valid phone number.');
+      return;
+    }
+
     await ref
         .read(authControllerProvider.notifier)
-        .login(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+        .login(phoneNumber: phoneNumber, password: password);
 
     if (!mounted) return;
+
     final authState = ref.read(authControllerProvider);
     if (authState.isAuthenticated) {
       context.go(AppRoutes.home);
@@ -55,7 +71,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             children: [
               Row(
                 children: [
-                  Image.asset('assets/icons/logo.png', width: 46),
+                  Image.asset('assets/icons/bankDumpIcon.png', width: 46),
                   const SizedBox(width: 14),
                   Text('BankDump', style: AppTextStyles.brand),
                 ],
@@ -64,7 +80,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               Text('Welcome back', style: AppTextStyles.title),
               const SizedBox(height: 8),
               Text(
-                'Sign in to manage orders, deliveries, and merchant tools in one place.',
+                'Sign in to manage payouts, settlements, and merchant tools in one place.',
                 style: AppTextStyles.subtitle,
               ),
               const SizedBox(height: 32),
@@ -79,9 +95,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       AppTextField(
-                        label: 'Email',
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
+                        label: 'Phone Number',
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
                       ),
                       const SizedBox(height: 16),
                       AppTextField(
@@ -90,12 +106,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         obscureText: true,
                       ),
                       const SizedBox(height: 16),
-                      if (authState.error != null)
-                        Text(
-                          authState.error!,
-                          style: const TextStyle(color: AppColors.error),
+                      if (_validationError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            _validationError!,
+                            style: const TextStyle(color: AppColors.error),
+                          ),
                         ),
-                      const SizedBox(height: 16),
+                      if (authState.error != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            authState.error!,
+                            style: const TextStyle(color: AppColors.error),
+                          ),
+                        ),
                       AppButton(
                         label: 'Sign In',
                         onPressed: _submit,
@@ -108,7 +134,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               const SizedBox(height: 24),
               Center(
                 child: Text(
-                  'Use the demo credentials to continue',
+                  'Use your phone number to sign in.',
                   style: AppTextStyles.caption,
                 ),
               ),
