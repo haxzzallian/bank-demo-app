@@ -8,9 +8,10 @@ class UserModel {
   final String email;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    final phoneNumber = json['phoneNumber']?.toString() ?? '';
     return UserModel(
-      id: json['id']?.toString() ?? '',
-      name: json['name']?.toString() ?? 'BankDump User',
+      id: json['id']?.toString() ?? phoneNumber,
+      name: json['name']?.toString() ?? json['fullName']?.toString() ?? phoneNumber,
       email: json['email']?.toString() ?? '',
     );
   }

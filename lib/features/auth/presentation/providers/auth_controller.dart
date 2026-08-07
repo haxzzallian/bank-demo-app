@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/error/failures.dart';
 import '../../../../core/services/token_storage.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -41,16 +42,47 @@ class AuthController extends StateNotifier<AuthState> {
 
   final AuthRepository _repository;
 
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({required String phoneNumber, required String password}) async {
     state = state.copyWith(isLoading: true, error: null);
 
-    final result = await _repository.login(email: email, password: password);
+    final result = await _repository.login(
+      phoneNumber: phoneNumber,
+      password: password,
+    );
 
     result.fold(
-      (failure) =>
-          state = state.copyWith(isLoading: false, error: failure.message),
-      (user) async {
-        await TokenStorage.instance.saveToken('demo-token');
+      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (user) {
+        state = state.copyWith(
+          isAuthenticated: true,
+          isLoading: false,
+          user: user,
+          error: null,
+        );
+      },
+    );
+  }
+
+  Future<void> register({
+    required String name,
+    required String email,
+    required String phoneNumber,
+    required String password,
+    required String accountType,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    final result = await _repository.register(
+      name: name,
+      email: email,
+      phoneNumber: phoneNumber,
+      password: password,
+      accountType: accountType,
+    );
+
+    result.fold(
+      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (user) {
         state = state.copyWith(
           isAuthenticated: true,
           isLoading: false,

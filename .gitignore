@@ -12,12 +12,12 @@
 .swiftpm/
 migrate_working_dir/
 
-# AI instruction files
-AI_INSTRUCTIONS.md
-UI_GUIDELINES.md
-TASKS.md
-API_RULES.md
-TODO.md
+# AI instruction/planning files and traces of AI tooling.
+# README.md is the one deliberate exception: the assessment brief requires a
+# submitted README, so it stays tracked.
+*.md
+!README.md
+.claude/
 
 # API specification
 openapi.json
