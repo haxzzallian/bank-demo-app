@@ -6,6 +6,7 @@ class DioClient {
   DioClient({
     String baseUrl = 'https://bankapi.veegil.com/api/v1',
     bool enableLogging = false,
+    void Function()? onUnauthorized,
   }) {
     _dio = Dio(
       BaseOptions(
@@ -38,6 +39,21 @@ class DioClient {
           }
           options.headers['Content-Type'] = 'application/json';
           return handler.next(options);
+        },
+      ),
+    );
+
+    // A 401 means the token is dead (expired/invalid) — not the same as a
+    // 403, which the API also uses for business-rule rejections (e.g.
+    // "cannot deposit to another account") that have nothing to do with the
+    // session being invalid. Only 401 should force a logout.
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onError: (error, handler) {
+          if (error.response?.statusCode == 401) {
+            onUnauthorized?.call();
+          }
+          return handler.next(error);
         },
       ),
     );

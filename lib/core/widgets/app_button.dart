@@ -12,11 +12,16 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.isLoading = false,
+    this.destructive = false,
   });
 
   final String label;
   final VoidCallback onPressed;
   final bool isLoading;
+
+  /// Solid error-red instead of the primary gradient — for destructive
+  /// actions (e.g. logout) that shouldn't look like the default CTA.
+  final bool destructive;
 
   @override
   Widget build(BuildContext context) {
@@ -29,17 +34,21 @@ class AppButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.cta, AppColors.secondary],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
+          gradient: destructive
+              ? null
+              : const LinearGradient(
+                  colors: [AppColors.cta, AppColors.secondary],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+          color: destructive ? AppColors.error : null,
           borderRadius: BorderRadius.circular(16),
           boxShadow: isDisabled
               ? null
               : [
                   BoxShadow(
-                    color: AppColors.cta.withValues(alpha: 0.35),
+                    color: (destructive ? AppColors.error : AppColors.cta)
+                        .withValues(alpha: 0.35),
                     blurRadius: 20,
                     offset: const Offset(0, 12),
                   ),

@@ -49,6 +49,7 @@ class _AppTextFieldState extends State<AppTextField> {
                   color: AppColors.textSecondary,
                   size: 20,
                 ),
+                tooltip: _obscured ? 'Show password' : 'Hide password',
                 onPressed: () => setState(() => _obscured = !_obscured),
               )
             : null,

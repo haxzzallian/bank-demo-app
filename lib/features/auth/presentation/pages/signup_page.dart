@@ -99,6 +99,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                       onPressed: () => context.go(AppRoutes.login),
                       icon: const Icon(Icons.arrow_back_ios_new_rounded),
                       color: Colors.white,
+                      tooltip: 'Back to sign in',
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -181,9 +182,12 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.secondary,
                         ),
-                        child: const Text(
+                        child: Text(
                           'Sign in',
-                          style: TextStyle(fontWeight: FontWeight.w700),
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.secondary,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],

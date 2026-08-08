@@ -324,9 +324,9 @@ class _OnboardingPageState extends State<OnboardingPage>
                 border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Text(
+              child: Text(
                 'Skip',
-                style: TextStyle(
+                style: AppTextStyles.body.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -357,11 +357,7 @@ class _OnboardingPageState extends State<OnboardingPage>
               ),
               child: Text(
                 isLastPage ? 'Get Started' : 'Continue',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                ),
+                style: AppTextStyles.button,
               ),
             ),
           ),

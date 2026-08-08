@@ -153,9 +153,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.secondary,
                         ),
-                        child: const Text(
+                        child: Text(
                           'Create account',
-                          style: TextStyle(fontWeight: FontWeight.w700),
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.secondary,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],
