@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/analytics/presentation/pages/analytics_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../features/deposit/presentation/pages/deposit_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/transactions/presentation/pages/transactions_page.dart';
+import '../../features/transfer/presentation/pages/transfer_page.dart';
+import '../../features/withdraw/presentation/pages/withdraw_page.dart';
 import '../di/injection.dart';
+import '../widgets/main_shell.dart';
 import 'app_routes.dart';
 
 /// Turns `authControllerProvider` changes into `GoRouter`'s `refreshListenable`
@@ -49,14 +56,57 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.signup,
         builder: (context, state) => const SignUpPage(),
       ),
+      // Full-screen flow pushed on top of the shell — not a tab, so it
+      // doesn't sit inside StatefulShellRoute below.
       GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const HomePage(),
+        path: AppRoutes.deposit,
+        builder: (context, state) => const DepositPage(),
       ),
       GoRoute(
-        path: AppRoutes.profile,
-        builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Profile scaffold'))),
+        path: AppRoutes.withdraw,
+        builder: (context, state) => const WithdrawPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.transfer,
+        builder: (context, state) => const TransferPage(),
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            MainShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                builder: (context, state) => const HomePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.transactions,
+                builder: (context, state) => const TransactionsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.analytics,
+                builder: (context, state) => const AnalyticsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                builder: (context, state) => const ProfilePage(),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
     redirect: (context, state) {
