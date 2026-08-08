@@ -15,8 +15,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   final DioClient _dioClient;
 
-  final RegExp _phonePattern = RegExp(r'^\+?[0-9]{7,15}$');
-  final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+  // Account number == phone number, digits only, per API_RULES.md.
+  final RegExp _phonePattern = RegExp(r'^[0-9]{10,15}$');
 
   @override
   Future<Either<Failure, UserEntity>> login({
@@ -26,14 +26,12 @@ class AuthRepositoryImpl implements AuthRepository {
     final trimmedPhoneNumber = phoneNumber.trim();
     final trimmedPassword = password.trim();
 
-    if (trimmedPhoneNumber.isEmpty || trimmedPassword.isEmpty) {
-      return const Left(
-        ValidationFailure('Phone number and password are required.'),
-      );
-    }
-
-    if (!_phonePattern.hasMatch(trimmedPhoneNumber)) {
-      return const Left(ValidationFailure('Enter a valid phone number.'));
+    final validationError = _validateCredentials(
+      trimmedPhoneNumber,
+      trimmedPassword,
+    );
+    if (validationError != null) {
+      return Left(ValidationFailure(validationError));
     }
 
     try {
@@ -42,48 +40,26 @@ class AuthRepositoryImpl implements AuthRepository {
         data: {'phoneNumber': trimmedPhoneNumber, 'password': trimmedPassword},
       );
 
-      return await _handleAuthResponse(
-        response,
-        fallbackEmail: '',
-        fallbackName: trimmedPhoneNumber,
-      );
-    } on DioError catch (error) {
+      return await _handleAuthResponse(response);
+    } on DioException catch (error) {
       return Left(_mapDioError(error));
     }
   }
 
   @override
   Future<Either<Failure, UserEntity>> register({
-    required String name,
-    required String email,
     required String phoneNumber,
     required String password,
-    required String accountType,
   }) async {
-    final trimmedName = name.trim();
-    final trimmedEmail = email.trim();
     final trimmedPhoneNumber = phoneNumber.trim();
     final trimmedPassword = password.trim();
 
-    if (trimmedName.isEmpty ||
-        trimmedEmail.isEmpty ||
-        trimmedPhoneNumber.isEmpty ||
-        trimmedPassword.isEmpty) {
-      return const Left(ValidationFailure('All fields are required.'));
-    }
-
-    if (!_emailPattern.hasMatch(trimmedEmail)) {
-      return const Left(ValidationFailure('Enter a valid email address.'));
-    }
-
-    if (!_phonePattern.hasMatch(trimmedPhoneNumber)) {
-      return const Left(ValidationFailure('Enter a valid phone number.'));
-    }
-
-    if (trimmedPassword.length < 8) {
-      return const Left(
-        ValidationFailure('Password must be at least 8 characters.'),
-      );
+    final validationError = _validateCredentials(
+      trimmedPhoneNumber,
+      trimmedPassword,
+    );
+    if (validationError != null) {
+      return Left(ValidationFailure(validationError));
     }
 
     try {
@@ -92,21 +68,50 @@ class AuthRepositoryImpl implements AuthRepository {
         data: {'phoneNumber': trimmedPhoneNumber, 'password': trimmedPassword},
       );
 
-      return await _handleAuthResponse(
-        response,
-        fallbackEmail: trimmedEmail,
-        fallbackName: trimmedName,
-      );
-    } on DioError catch (error) {
+      return await _handleAuthResponse(response);
+    } on DioException catch (error) {
       return Left(_mapDioError(error));
     }
   }
 
+  @override
+  Future<Either<Failure, UserEntity>> getCurrentUser() async {
+    try {
+      final response = await _dioClient.dio.get('/auth/me');
+
+      final payload = response.data;
+      if (payload is! Map<String, dynamic> ||
+          payload['data'] is! Map<String, dynamic>) {
+        return const Left(ServerFailure('Invalid account response.'));
+      }
+
+      final userModel = UserModel.fromJson(
+        payload['data'] as Map<String, dynamic>,
+      );
+      return Right(userModel.toEntity());
+    } on DioException catch (error) {
+      return Left(_mapDioError(error));
+    }
+  }
+
+  /// Mirrors the `Credentials` schema: `phoneNumber` digits-only,
+  /// `password` 8–128 chars.
+  String? _validateCredentials(String phoneNumber, String password) {
+    if (phoneNumber.isEmpty || password.isEmpty) {
+      return 'Phone number and password are required.';
+    }
+    if (!_phonePattern.hasMatch(phoneNumber)) {
+      return 'Enter a valid phone number.';
+    }
+    if (password.length < 8 || password.length > 128) {
+      return 'Password must be between 8 and 128 characters.';
+    }
+    return null;
+  }
+
   Future<Either<Failure, UserEntity>> _handleAuthResponse(
-    Response response, {
-    required String fallbackEmail,
-    required String fallbackName,
-  }) async {
+    Response response,
+  ) async {
     final payload = response.data;
     if (payload is! Map<String, dynamic>) {
       return const Left(ServerFailure('Invalid server response.'));
@@ -124,21 +129,18 @@ class AuthRepositoryImpl implements AuthRepository {
 
     await TokenStorage.instance.saveToken(token);
 
-    final userJson = <String, dynamic>{};
-    if (data['user'] is Map<String, dynamic>) {
-      userJson.addAll(data['user'] as Map<String, dynamic>);
+    if (data['user'] is! Map<String, dynamic>) {
+      return const Left(ServerFailure('Invalid account response.'));
     }
-    userJson['email'] = userJson['email'] ?? fallbackEmail;
-    userJson['name'] = userJson['name'] ?? fallbackName;
 
-    final userModel = UserModel.fromJson(userJson);
+    final userModel = UserModel.fromJson(data['user'] as Map<String, dynamic>);
     return Right(userModel.toEntity());
   }
 
-  Failure _mapDioError(DioError error) {
-    if (error.type == DioErrorType.connectionTimeout ||
-        error.type == DioErrorType.sendTimeout ||
-        error.type == DioErrorType.receiveTimeout) {
+  Failure _mapDioError(DioException error) {
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.sendTimeout ||
+        error.type == DioExceptionType.receiveTimeout) {
       return const NetworkFailure('Connection timed out. Please try again.');
     }
 
@@ -149,45 +151,51 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     final response = error.response;
-    if (response != null) {
-      final statusCode = response.statusCode ?? 0;
-
-      // Attempt to extract a meaningful message from multiple common shapes.
-      String extractMessage(dynamic data) {
-        try {
-          if (data == null) return 'Authentication failed.';
-          if (data is String) return data;
-          if (data is Map<String, dynamic>) {
-            if (data['message'] != null) return data['message'].toString();
-            if (data['error'] != null) return data['error'].toString();
-            if (data['errors'] != null) {
-              final errs = data['errors'];
-              if (errs is Map) return errs.values.join(', ');
-              if (errs is List) return errs.join(', ');
-            }
-            if (data['data'] is Map && data['data']['message'] != null) {
-              return data['data']['message'].toString();
-            }
-          }
-          return 'Authentication failed.';
-        } catch (_) {
-          return 'Authentication failed.';
-        }
-      }
-
-      final String message =
-          extractMessage(response.data) ??
-          (error.message ?? 'Authentication failed.');
-
-      if (statusCode == 401) {
-        return UnauthorizedFailure(message);
-      }
-      if (statusCode == 404) {
-        return NotFoundFailure(message);
-      }
-      return ServerFailure(message);
+    if (response == null) {
+      return const UnknownFailure('Something went wrong. Please try again.');
     }
 
-    return UnknownFailure('Something went wrong. Please try again.');
+    final statusCode = response.statusCode ?? 0;
+    final message = _extractMessage(response.data) ?? error.message;
+
+    switch (statusCode) {
+      case 400:
+      case 409:
+        return ValidationFailure(message ?? 'Invalid request.');
+      case 401:
+      case 403:
+        return UnauthorizedFailure(message ?? 'Authentication failed.');
+      case 404:
+        return NotFoundFailure(message ?? 'Not found.');
+      default:
+        if (statusCode >= 500) {
+          return ServerFailure(message ?? 'Something went wrong on our end.');
+        }
+        return UnknownFailure(
+          message ?? 'Something went wrong. Please try again.',
+        );
+    }
+  }
+
+  /// Extracts a user-facing message from the API's `ApiError` shape
+  /// (`{ status, message, code, data }`), falling back to a couple of other
+  /// common shapes in case the server ever deviates.
+  String? _extractMessage(dynamic data) {
+    try {
+      if (data is String && data.isNotEmpty) return data;
+      if (data is Map<String, dynamic>) {
+        if (data['message'] != null) return data['message'].toString();
+        if (data['error'] != null) return data['error'].toString();
+        if (data['errors'] is Map) {
+          return (data['errors'] as Map).values.join(', ');
+        }
+        if (data['errors'] is List) {
+          return (data['errors'] as List).join(', ');
+        }
+      }
+    } catch (_) {
+      // Fall through to null below.
+    }
+    return null;
   }
 }

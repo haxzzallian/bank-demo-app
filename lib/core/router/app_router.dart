@@ -10,11 +10,28 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../di/injection.dart';
 import 'app_routes.dart';
 
+/// Turns `authControllerProvider` changes into `GoRouter`'s `refreshListenable`
+/// signal, so a login/logout/session-check re-evaluates `redirect` on the
+/// *current* router instance instead of tearing down and recreating GoRouter
+/// itself. Recreating GoRouter resets its navigation stack to
+/// `initialLocation`, which would replay `SplashPage.initState()` — which
+/// calls `checkAuthStatus()` — which changes auth state again — recreating
+/// GoRouter again, forever. Watching the provider directly inside
+/// `appRouterProvider`'s build function (the previous approach) hit exactly
+/// that loop.
+class _AuthRefreshListenable extends ChangeNotifier {
+  _AuthRefreshListenable(Ref ref) {
+    ref.listen(authControllerProvider, (previous, next) => notifyListeners());
+  }
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authController = ref.watch(authControllerProvider);
+  final refresh = _AuthRefreshListenable(ref);
+  ref.onDispose(refresh.dispose);
 
   return GoRouter(
     initialLocation: AppRoutes.splash,
+    refreshListenable: refresh,
     routes: [
       GoRoute(
         path: AppRoutes.splash,
@@ -43,7 +60,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (context, state) {
-      final isAuthenticated = authController.isAuthenticated;
+      final isAuthenticated = ref.read(authControllerProvider).isAuthenticated;
       final isLoginRoute = state.matchedLocation == AppRoutes.login;
       final isOnboardingRoute = state.matchedLocation == AppRoutes.onboarding;
       final isSignupRoute = state.matchedLocation == AppRoutes.signup;

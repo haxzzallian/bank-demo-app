@@ -7,7 +7,15 @@ import 'core/config/app_flavor.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Allow google_fonts to fetch fonts at runtime if AssetManifest is missing.
-  GoogleFonts.config.allowRuntimeFetching = true;
-  runApp(const ProviderScope(child: BankDumpApp(flavor: AppFlavor.prod)));
+  // Fonts are resolved from the bundled asset manifest only — never fetched
+  // over the network at runtime. An old google_fonts + newer Flutter asset
+  // manifest format mismatch previously made every font lookup throw and
+  // retry in a tight loop, freezing the UI before a single frame painted.
+  GoogleFonts.config.allowRuntimeFetching = false;
+  runApp(
+    ProviderScope(
+      overrides: [appFlavorProvider.overrideWithValue(AppFlavor.prod)],
+      child: const BankDumpApp(flavor: AppFlavor.prod),
+    ),
+  );
 }

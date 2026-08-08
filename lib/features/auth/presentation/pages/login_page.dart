@@ -7,7 +7,10 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_error_banner.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/glass_card.dart';
+import '../widgets/animated_aurora_background.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -17,9 +20,12 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final _phoneController = TextEditingController(text: '08011112222');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
   String? _validationError;
+
+  // Account number == phone number, digits only, per API_RULES.md.
+  static final RegExp _phonePattern = RegExp(r'^[0-9]{10,15}$');
 
   @override
   void dispose() {
@@ -41,7 +47,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
-    if (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(phoneNumber)) {
+    if (!_phonePattern.hasMatch(phoneNumber)) {
       setState(() => _validationError = 'Enter a valid phone number.');
       return;
     }
@@ -61,36 +67,47 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    final errorMessage = _validationError ?? authState.error;
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Image.asset('assets/icons/bankDumpIcon.png', width: 46),
-                  const SizedBox(width: 14),
-                  Text('BankDump', style: AppTextStyles.brand),
-                ],
-              ),
-              const SizedBox(height: 32),
-              Text('Welcome back', style: AppTextStyles.title),
-              const SizedBox(height: 8),
-              Text(
-                'Sign in to manage payouts, settlements, and merchant tools in one place.',
-                style: AppTextStyles.subtitle,
-              ),
-              const SizedBox(height: 32),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+      body: AnimatedAuroraBackground(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Image.asset('assets/icons/bankDumpIcon.png', width: 42),
+                    const SizedBox(width: 12),
+                    Text(
+                      'BankDump',
+                      style: AppTextStyles.brand.copyWith(
+                        color: Colors.white,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ],
                 ),
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
+                const SizedBox(height: 40),
+                Text(
+                  'Welcome back',
+                  style: AppTextStyles.title.copyWith(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Sign in with your phone number to manage your money.',
+                  style: AppTextStyles.subtitle.copyWith(
+                    color: Colors.white.withValues(alpha: 0.75),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                GlassCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -98,30 +115,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         label: 'Phone Number',
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
+                        prefixIcon: Icons.call_outlined,
                       ),
                       const SizedBox(height: 16),
                       AppTextField(
                         label: 'Password',
                         controller: _passwordController,
                         obscureText: true,
+                        prefixIcon: Icons.lock_outline_rounded,
                       ),
-                      const SizedBox(height: 16),
-                      if (_validationError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Text(
-                            _validationError!,
-                            style: const TextStyle(color: AppColors.error),
-                          ),
-                        ),
-                      if (authState.error != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Text(
-                            authState.error!,
-                            style: const TextStyle(color: AppColors.error),
-                          ),
-                        ),
+                      if (errorMessage != null) ...[
+                        const SizedBox(height: 16),
+                        AppErrorBanner(message: errorMessage),
+                      ],
+                      const SizedBox(height: 20),
                       AppButton(
                         label: 'Sign In',
                         onPressed: _submit,
@@ -130,28 +137,32 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: Text(
-                  'Use your phone number to sign in.',
-                  style: AppTextStyles.caption,
+                const SizedBox(height: 24),
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Don't have an account? ",
+                        style: AppTextStyles.body.copyWith(
+                          color: Colors.white.withValues(alpha: 0.75),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.go(AppRoutes.signup),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.secondary,
+                        ),
+                        child: const Text(
+                          'Create account',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text("Don't have an account? "),
-                    TextButton(
-                      onPressed: () => context.go(AppRoutes.signup),
-                      child: const Text('Create account'),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

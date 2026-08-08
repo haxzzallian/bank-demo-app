@@ -1,22 +1,33 @@
 import '../../domain/entities/user_entity.dart';
 
+/// Generated strictly from the API's `User` schema — do not add fields the
+/// API doesn't return.
 class UserModel {
-  const UserModel({required this.id, required this.name, required this.email});
+  const UserModel({
+    required this.phoneNumber,
+    required this.balance,
+    required this.created,
+  });
 
-  final String id;
-  final String name;
-  final String email;
+  final String phoneNumber;
+  final double balance;
+  final DateTime created;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    final phoneNumber = json['phoneNumber']?.toString() ?? '';
     return UserModel(
-      id: json['id']?.toString() ?? phoneNumber,
-      name: json['name']?.toString() ?? json['fullName']?.toString() ?? phoneNumber,
-      email: json['email']?.toString() ?? '',
+      phoneNumber: json['phoneNumber']?.toString() ?? '',
+      balance: (json['balance'] as num?)?.toDouble() ?? 0,
+      created:
+          DateTime.tryParse(json['created']?.toString() ?? '') ??
+          DateTime.now(),
     );
   }
 
   UserEntity toEntity() {
-    return UserEntity(id: id, name: name, email: email);
+    return UserEntity(
+      phoneNumber: phoneNumber,
+      balance: balance,
+      created: created,
+    );
   }
 }
