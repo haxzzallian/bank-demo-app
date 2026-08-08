@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app.dart';
 import 'core/config/app_flavor.dart';
+import 'core/error/global_error_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +12,7 @@ Future<void> main() async {
   // over the network at runtime. `google_fonts` defaults this to `true`, so
   // it has to be set explicitly here too, not just in dev/prod.
   GoogleFonts.config.allowRuntimeFetching = false;
+  configureErrorHandling(showDetails: true);
   runApp(
     ProviderScope(
       overrides: [appFlavorProvider.overrideWithValue(AppFlavor.staging)],

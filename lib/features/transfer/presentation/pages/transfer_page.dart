@@ -7,9 +7,12 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/amount_entry.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_error_banner.dart';
+import '../../../../core/widgets/balance_summary_card.dart';
 import '../../../../core/widgets/confirm_sheet.dart';
 import '../../../../core/widgets/retry_error_view.dart';
+import '../../../../core/widgets/staggered_fade_in.dart';
 import '../../../../core/widgets/success_check.dart';
 import '../../../home/presentation/providers/dashboard_controller.dart';
 import '../../domain/entities/recipient_entity.dart';
@@ -179,6 +182,7 @@ class _RecipientSelectionView extends StatelessWidget {
                 onPressed: () => Navigator.of(context).maybePop(),
                 icon: const Icon(Icons.arrow_back_ios_new_rounded),
                 color: AppColors.textPrimary,
+                tooltip: 'Back',
               ),
               Text(
                 'Transfer',
@@ -276,9 +280,12 @@ class _RecipientSelectionView extends StatelessWidget {
       separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final recipient = recipients[index];
-        return _RecipientTile(
-          recipient: recipient,
-          onTap: () => onSelect(recipient),
+        return StaggeredFadeIn(
+          index: index,
+          child: _RecipientTile(
+            recipient: recipient,
+            onTap: () => onSelect(recipient),
+          ),
         );
       },
     );
@@ -295,19 +302,8 @@ class _RecipientTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
+      child: AppCard(
+        borderRadius: 16,
         child: Row(
           children: [
             Container(
@@ -381,6 +377,7 @@ class _AmountView extends StatelessWidget {
                 onPressed: onBack,
                 icon: const Icon(Icons.arrow_back_ios_new_rounded),
                 color: AppColors.textPrimary,
+                tooltip: 'Back',
               ),
               Text(
                 'Transfer',
@@ -473,30 +470,9 @@ class _TransferSuccessView extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('New Balance', style: AppTextStyles.caption),
-                Text(
-                  CurrencyFormatter.format(result.balance),
-                  style: AppTextStyles.title.copyWith(fontSize: 18),
-                ),
-              ],
-            ),
+          BalanceSummaryCard(
+            label: 'New Balance',
+            value: CurrencyFormatter.format(result.balance),
           ),
           const SizedBox(height: 40),
           AppButton(label: 'Done', onPressed: onDone),

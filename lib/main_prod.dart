@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app.dart';
 import 'core/config/app_flavor.dart';
+import 'core/error/global_error_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +13,8 @@ Future<void> main() async {
   // manifest format mismatch previously made every font lookup throw and
   // retry in a tight loop, freezing the UI before a single frame painted.
   GoogleFonts.config.allowRuntimeFetching = false;
+  // Never show exception details on-screen in prod — only dev/staging.
+  configureErrorHandling(showDetails: false);
   runApp(
     ProviderScope(
       overrides: [appFlavorProvider.overrideWithValue(AppFlavor.prod)],

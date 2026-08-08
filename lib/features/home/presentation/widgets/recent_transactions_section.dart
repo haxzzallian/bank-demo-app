@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../transactions/domain/entities/transaction_entity.dart';
 
 class RecentTransactionsSection extends StatelessWidget {
@@ -72,19 +73,8 @@ class _TransactionTile extends StatelessWidget {
               ? transaction.note!
               : (isCredit ? 'Deposit' : 'Withdrawal'));
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+    return AppCard(
+      borderRadius: 18,
       child: Row(
         children: [
           Container(
@@ -136,39 +126,37 @@ class _EmptyTransactions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
-              shape: BoxShape.circle,
+      child: AppCard(
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+        child: Column(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.receipt_long_outlined,
+                color: AppColors.textSecondary,
+              ),
             ),
-            child: const Icon(
-              Icons.receipt_long_outlined,
-              color: AppColors.textSecondary,
+            const SizedBox(height: 14),
+            Text(
+              'No transactions yet',
+              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
             ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'No transactions yet',
-            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Your deposits, withdrawals, and transfers will show up here.',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.caption,
-          ),
-        ],
+            const SizedBox(height: 6),
+            Text(
+              'Your deposits, withdrawals, and transfers will show up here.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.caption,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -32,6 +32,31 @@ class _AuthRefreshListenable extends ChangeNotifier {
   }
 }
 
+/// A subtle, consistent fade + slight-slide transition used for every route
+/// (replacing the platform-default transition) — a small, self-contained
+/// premium touch that only affects how a page's widget builds, not the
+/// redirect/refresh logic above.
+CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 280),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final fade = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+      return FadeTransition(
+        opacity: fade,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.03),
+            end: Offset.zero,
+          ).animate(fade),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refresh = _AuthRefreshListenable(ref);
   ref.onDispose(refresh.dispose);
@@ -42,33 +67,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const SplashPage(),
+        pageBuilder: (context, state) => _fadePage(state, const SplashPage()),
       ),
       GoRoute(
         path: AppRoutes.onboarding,
-        builder: (context, state) => const OnboardingPage(),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const OnboardingPage()),
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const LoginPage(),
+        pageBuilder: (context, state) => _fadePage(state, const LoginPage()),
       ),
       GoRoute(
         path: AppRoutes.signup,
-        builder: (context, state) => const SignUpPage(),
+        pageBuilder: (context, state) => _fadePage(state, const SignUpPage()),
       ),
       // Full-screen flow pushed on top of the shell — not a tab, so it
       // doesn't sit inside StatefulShellRoute below.
       GoRoute(
         path: AppRoutes.deposit,
-        builder: (context, state) => const DepositPage(),
+        pageBuilder: (context, state) => _fadePage(state, const DepositPage()),
       ),
       GoRoute(
         path: AppRoutes.withdraw,
-        builder: (context, state) => const WithdrawPage(),
+        pageBuilder: (context, state) => _fadePage(state, const WithdrawPage()),
       ),
       GoRoute(
         path: AppRoutes.transfer,
-        builder: (context, state) => const TransferPage(),
+        pageBuilder: (context, state) => _fadePage(state, const TransferPage()),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -78,7 +104,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.home,
-                builder: (context, state) => const HomePage(),
+                pageBuilder: (context, state) =>
+                    _fadePage(state, const HomePage()),
               ),
             ],
           ),
@@ -86,7 +113,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.transactions,
-                builder: (context, state) => const TransactionsPage(),
+                pageBuilder: (context, state) =>
+                    _fadePage(state, const TransactionsPage()),
               ),
             ],
           ),
@@ -94,7 +122,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.analytics,
-                builder: (context, state) => const AnalyticsPage(),
+                pageBuilder: (context, state) =>
+                    _fadePage(state, const AnalyticsPage()),
               ),
             ],
           ),
@@ -102,7 +131,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.profile,
-                builder: (context, state) => const ProfilePage(),
+                pageBuilder: (context, state) =>
+                    _fadePage(state, const ProfilePage()),
               ),
             ],
           ),

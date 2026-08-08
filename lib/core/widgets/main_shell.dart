@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 
 /// The bottom-nav shell wrapping the app's 4 tab branches (Dashboard,
 /// Transactions, Analytics, Profile). Full-screen flows like Deposit are
@@ -32,8 +33,7 @@ class MainShell extends StatelessWidget {
             indicatorColor: AppColors.cta.withValues(alpha: 0.14),
             surfaceTintColor: Colors.transparent,
             labelTextStyle: WidgetStateProperty.resolveWith(
-              (states) => TextStyle(
-                fontSize: 12,
+              (states) => AppTextStyles.caption.copyWith(
                 fontWeight: states.contains(WidgetState.selected)
                     ? FontWeight.w700
                     : FontWeight.w500,

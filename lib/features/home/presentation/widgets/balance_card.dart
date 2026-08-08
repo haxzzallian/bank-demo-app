@@ -80,12 +80,16 @@ class _BalanceCardState extends State<BalanceCard> {
                             ? Icons.visibility_off_rounded
                             : Icons.visibility_rounded,
                         onTap: () => setState(() => _hidden = !_hidden),
+                        semanticLabel: _hidden
+                            ? 'Show balance'
+                            : 'Hide balance',
                       ),
                       const SizedBox(width: 8),
                       _iconButton(
                         icon: Icons.refresh_rounded,
                         onTap: widget.onRefresh,
                         spinning: widget.isRefreshing,
+                        semanticLabel: 'Refresh balance',
                       ),
                     ],
                   ),
@@ -124,40 +128,44 @@ class _BalanceCardState extends State<BalanceCard> {
                   ),
                 ),
               const SizedBox(height: 20),
-              GestureDetector(
-                onTap: _copyAccountNumber,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.account_balance_rounded,
-                        color: Colors.white,
-                        size: 15,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        widget.phoneNumber ?? '—',
-                        style: AppTextStyles.caption.copyWith(
+              Tooltip(
+                message: 'Copy account number',
+                child: GestureDetector(
+                  onTap: _copyAccountNumber,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.account_balance_rounded,
                           color: Colors.white,
-                          fontWeight: FontWeight.w700,
+                          size: 15,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(
-                        Icons.copy_rounded,
-                        color: Colors.white70,
-                        size: 13,
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Text(
+                          widget.phoneNumber ?? '—',
+                          style: AppTextStyles.caption.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(
+                          Icons.copy_rounded,
+                          color: Colors.white70,
+                          size: 13,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -185,26 +193,35 @@ class _BalanceCardState extends State<BalanceCard> {
   Widget _iconButton({
     required IconData icon,
     required VoidCallback onTap,
+    required String semanticLabel,
     bool spinning = false,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 34,
-        height: 34,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.16),
-          shape: BoxShape.circle,
+    // 44x44 minimum tap target per UI_GUIDELINES's "large tap targets" —
+    // the icon itself stays visually compact inside it.
+    return Tooltip(
+      message: semanticLabel,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.16),
+            shape: BoxShape.circle,
+          ),
+          child: spinning
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Icon(icon, color: Colors.white, size: 18),
         ),
-        child: spinning
-            ? const Padding(
-                padding: EdgeInsets.all(8),
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : Icon(icon, color: Colors.white, size: 18),
       ),
     );
   }

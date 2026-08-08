@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/retry_error_view.dart';
 import '../../../../core/widgets/shimmer_box.dart';
+import '../../../../core/widgets/staggered_fade_in.dart';
 import '../providers/transactions_list_controller.dart';
 import '../widgets/transaction_list_tile.dart';
 
@@ -152,7 +153,10 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
           if (index == state.items.length) {
             return _buildFooter(state);
           }
-          return TransactionListTile(transaction: state.items[index]);
+          return StaggeredFadeIn(
+            index: index,
+            child: TransactionListTile(transaction: state.items[index]),
+          );
         },
       ),
     );
