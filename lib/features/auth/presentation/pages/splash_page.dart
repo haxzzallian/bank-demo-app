@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/services/onboarding_storage.dart';
-import '../../../../core/services/token_storage.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../widgets/animated_aurora_background.dart';
 
-class SplashPage extends StatefulWidget {
+class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
+  ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage>
+class _SplashPageState extends ConsumerState<SplashPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _entranceController;
   late final Animation<double> _fade;
@@ -42,10 +43,15 @@ class _SplashPageState extends State<SplashPage>
   }
 
   Future<void> _initializeApp() async {
-    await Future<void>.delayed(const Duration(milliseconds: 1100));
+    final entrance = Future<void>.delayed(const Duration(milliseconds: 1100));
     final hasOnboarded = await OnboardingStorage.instance
         .hasCompletedOnboarding();
-    final hasToken = await TokenStorage.instance.hasToken();
+    // Hydrates AuthController's state from the persisted token *before* the
+    // router makes its first redirect decision — otherwise a valid session
+    // still reads as unauthenticated and gets bounced back to login on the
+    // next router rebuild.
+    await ref.read(authControllerProvider.notifier).checkAuthStatus();
+    await entrance;
 
     if (!mounted) return;
 
@@ -54,7 +60,8 @@ class _SplashPageState extends State<SplashPage>
       return;
     }
 
-    if (hasToken) {
+    final isAuthenticated = ref.read(authControllerProvider).isAuthenticated;
+    if (isAuthenticated) {
       context.go(AppRoutes.home);
       return;
     }

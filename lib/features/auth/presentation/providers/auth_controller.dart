@@ -1,32 +1,35 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/error/failures.dart';
 import '../../../../core/services/token_storage.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 
+enum AuthStatus { unknown, authenticated, unauthenticated }
+
 class AuthState extends Equatable {
   const AuthState({
-    this.isAuthenticated = false,
+    this.status = AuthStatus.unknown,
     this.isLoading = false,
     this.user,
     this.error,
   });
 
-  final bool isAuthenticated;
+  final AuthStatus status;
   final bool isLoading;
   final UserEntity? user;
   final String? error;
 
+  bool get isAuthenticated => status == AuthStatus.authenticated;
+
   AuthState copyWith({
-    bool? isAuthenticated,
+    AuthStatus? status,
     bool? isLoading,
     UserEntity? user,
     String? error,
   }) {
     return AuthState(
-      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      status: status ?? this.status,
       isLoading: isLoading ?? this.isLoading,
       user: user ?? this.user,
       error: error,
@@ -34,7 +37,7 @@ class AuthState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [isAuthenticated, isLoading, user, error];
+  List<Object?> get props => [status, isLoading, user, error];
 }
 
 class AuthController extends StateNotifier<AuthState> {
@@ -42,7 +45,48 @@ class AuthController extends StateNotifier<AuthState> {
 
   final AuthRepository _repository;
 
-  Future<void> login({required String phoneNumber, required String password}) async {
+  /// Hydrates session state from a persisted token on cold start. Must be
+  /// awaited before the router makes its first redirect decision — otherwise
+  /// a valid, persisted session still reads as unauthenticated and gets
+  /// bounced back to login on the next router rebuild.
+  Future<void> checkAuthStatus() async {
+    state = state.copyWith(isLoading: true);
+
+    final hasToken = await TokenStorage.instance.hasToken();
+    if (!hasToken) {
+      state = state.copyWith(
+        status: AuthStatus.unauthenticated,
+        isLoading: false,
+      );
+      return;
+    }
+
+    final result = await _repository.getCurrentUser();
+
+    result.fold(
+      (failure) async {
+        // Stored token is invalid/expired — clear it and fall back to login.
+        await TokenStorage.instance.clearToken();
+        state = state.copyWith(
+          status: AuthStatus.unauthenticated,
+          isLoading: false,
+        );
+      },
+      (user) {
+        state = state.copyWith(
+          status: AuthStatus.authenticated,
+          isLoading: false,
+          user: user,
+          error: null,
+        );
+      },
+    );
+  }
+
+  Future<void> login({
+    required String phoneNumber,
+    required String password,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
 
     final result = await _repository.login(
@@ -51,10 +95,11 @@ class AuthController extends StateNotifier<AuthState> {
     );
 
     result.fold(
-      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (failure) =>
+          state = state.copyWith(isLoading: false, error: failure.message),
       (user) {
         state = state.copyWith(
-          isAuthenticated: true,
+          status: AuthStatus.authenticated,
           isLoading: false,
           user: user,
           error: null,
@@ -64,27 +109,22 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> register({
-    required String name,
-    required String email,
     required String phoneNumber,
     required String password,
-    required String accountType,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
     final result = await _repository.register(
-      name: name,
-      email: email,
       phoneNumber: phoneNumber,
       password: password,
-      accountType: accountType,
     );
 
     result.fold(
-      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (failure) =>
+          state = state.copyWith(isLoading: false, error: failure.message),
       (user) {
         state = state.copyWith(
-          isAuthenticated: true,
+          status: AuthStatus.authenticated,
           isLoading: false,
           user: user,
           error: null,
@@ -95,6 +135,6 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     await TokenStorage.instance.clearToken();
-    state = const AuthState();
+    state = const AuthState(status: AuthStatus.unauthenticated);
   }
 }

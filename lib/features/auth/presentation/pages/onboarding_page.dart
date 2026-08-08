@@ -8,9 +8,9 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/services/onboarding_storage.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/press_scale.dart';
 import '../widgets/animated_aurora_background.dart';
 import '../widgets/onboarding_illustration.dart';
-import '../widgets/press_scale.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -321,9 +321,7 @@ class _OnboardingPageState extends State<OnboardingPage>
               padding: const EdgeInsets.symmetric(vertical: 16),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.28),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Text(
