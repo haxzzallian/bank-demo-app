@@ -33,17 +33,17 @@ Captured live off the running app (`dev` flavor, Android emulator) — full-size
 
 ### Work summary
 
-Built out a premium fintech-grade banking client on top of an existing Flutter scaffold, consuming the hosted Veegil banking API end to end:
+Built a full banking client against the Veegil API — auth, money movement, transaction history, and account management.
 
-- **Auth** — login/signup against the real `phoneNumber` + `password` contract (account number is the phone number; no name/email fields exist in the API), JWT persistence via secure storage, session hydration on cold start, and logout.
-- **Dashboard** — balance card with show/hide and pull-to-refresh, quick actions, recent transactions, and a statistics preview.
-- **Deposit / Withdraw / Transfer** — full flows with preset and custom amount entry, validation, confirmation, success/failure states, and idempotent retries (`Idempotency-Key`) on all three money-movement endpoints.
-- **Transactions** — paginated history with type, amount, date/time, balance-after, and counterparty per entry.
-- **Analytics** — client-side aggregation of deposits vs. withdrawals into animated monthly and weekly charts, since the API exposes no dedicated analytics endpoint.
+- **Auth** — login/signup on the real `phoneNumber` + `password` contract (the phone number is the account number, there's no name or email field on the API), JWT saved to secure storage, session restored on app restart, logout.
+- **Dashboard** — balance card with show/hide and pull-to-refresh, quick actions, recent transactions, and a stats preview.
+- **Deposit / Withdraw / Transfer** — preset and custom amounts, validation, confirmation, success/failure states, and idempotency keys on all three so retries are safe.
+- **Transactions** — paginated history with type, amount, date/time, balance after, and counterparty.
+- **Analytics** — deposits vs. withdrawals rolled up into monthly and weekly charts, computed on the client since the API doesn't expose analytics.
 - **Profile** — account details and logout.
-- **Cross-cutting** — global network/timeout/offline/401 handling with retry, loading/empty/error states on every screen, and a shimmer-based skeleton loading system tuned for performance (screens with many placeholders share a single animation ticker instead of one per placeholder).
+- Network/timeout/offline/401 handling with retry, loading/empty/error states on every screen, and skeleton loaders while data comes in.
 
-The app ships three flavors (`dev`/`staging`/`prod`) from a shared `BankDumpApp`, follows Clean Architecture (`domain`/`data`/`presentation` per feature) with Riverpod for state management throughout, and passes `flutter analyze` and `flutter test` cleanly.
+Clean Architecture (`domain`/`data`/`presentation` per feature), Riverpod for state, three build flavors (`dev`/`staging`/`prod`), and it passes `flutter analyze` and `flutter test`.
 
 ## Prerequisites
 
@@ -52,7 +52,7 @@ The app ships three flavors (`dev`/`staging`/`prod`) from a shared `BankDumpApp`
 
 ## Development environment
 
-For context on what this was built and verified against (`flutter doctor` reports no issues on this setup):
+Built and tested on:
 
 |                      |                                                                                |
 | -------------------- | ------------------------------------------------------------------------------ |
@@ -119,3 +119,5 @@ Built APKs land under `build/app/outputs/flutter-apk/`.
 Clean Architecture, feature-based, under `lib/features/<feature>/{domain,data,presentation}`, with shared plumbing (networking, DI, routing, storage, theming) under `lib/core/`. State management is Riverpod only.
 
 ## API
+
+Consumes the hosted banking API at `https://bankapi.veegil.com/api/v1` (OpenAPI spec at `https://bankapi.veegil.com/openapi.json`). See `API_RULES.md` for the integration rules.
