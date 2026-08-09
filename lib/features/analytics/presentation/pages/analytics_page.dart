@@ -10,13 +10,6 @@ import '../providers/analytics_controller.dart';
 import '../widgets/grouped_bar_chart.dart';
 import '../widgets/summary_cards.dart';
 
-/// Full Analytics screen — replaces the Phase 3/4 "coming soon" placeholder.
-///
-/// No dedicated analytics endpoint exists in the API, so every number here
-/// is computed client-side from `GET /transactions`. The API only models
-/// `credit`/`debit` (no separate deposit/transfer-in distinction), so
-/// "Deposits" = credit and "Withdrawals" = debit throughout, matching the
-/// same mapping the dashboard's Activity Snapshot already uses.
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key});
 
@@ -61,31 +54,33 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage> {
     if (state.isLoading) {
       return SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: const [
-                Expanded(child: ShimmerBox(height: 90, borderRadius: 18)),
-                SizedBox(width: 12),
-                Expanded(child: ShimmerBox(height: 90, borderRadius: 18)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: const [
-                Expanded(child: ShimmerBox(height: 90, borderRadius: 18)),
-                SizedBox(width: 12),
-                Expanded(child: ShimmerBox(height: 90, borderRadius: 18)),
-              ],
-            ),
-            const SizedBox(height: 24),
-            const ShimmerBox(
-              width: double.infinity,
-              height: 220,
-              borderRadius: 20,
-            ),
-          ],
+        child: ShimmerGroup(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Expanded(child: ShimmerBox(height: 90, borderRadius: 18)),
+                  SizedBox(width: 12),
+                  Expanded(child: ShimmerBox(height: 90, borderRadius: 18)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: const [
+                  Expanded(child: ShimmerBox(height: 90, borderRadius: 18)),
+                  SizedBox(width: 12),
+                  Expanded(child: ShimmerBox(height: 90, borderRadius: 18)),
+                ],
+              ),
+              const SizedBox(height: 24),
+              const ShimmerBox(
+                width: double.infinity,
+                height: 220,
+                borderRadius: 20,
+              ),
+            ],
+          ),
         ),
       );
     }

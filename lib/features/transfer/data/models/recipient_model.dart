@@ -1,6 +1,5 @@
 import '../../domain/entities/recipient_entity.dart';
 
-/// Generated strictly from the API's `DirectoryUser` schema.
 class RecipientModel {
   const RecipientModel({required this.phoneNumber, required this.created});
 

@@ -17,25 +17,12 @@ import '../di/injection.dart';
 import '../widgets/main_shell.dart';
 import 'app_routes.dart';
 
-/// Turns `authControllerProvider` changes into `GoRouter`'s `refreshListenable`
-/// signal, so a login/logout/session-check re-evaluates `redirect` on the
-/// *current* router instance instead of tearing down and recreating GoRouter
-/// itself. Recreating GoRouter resets its navigation stack to
-/// `initialLocation`, which would replay `SplashPage.initState()` — which
-/// calls `checkAuthStatus()` — which changes auth state again — recreating
-/// GoRouter again, forever. Watching the provider directly inside
-/// `appRouterProvider`'s build function (the previous approach) hit exactly
-/// that loop.
 class _AuthRefreshListenable extends ChangeNotifier {
   _AuthRefreshListenable(Ref ref) {
     ref.listen(authControllerProvider, (previous, next) => notifyListeners());
   }
 }
 
-/// A subtle, consistent fade + slight-slide transition used for every route
-/// (replacing the platform-default transition) — a small, self-contained
-/// premium touch that only affects how a page's widget builds, not the
-/// redirect/refresh logic above.
 CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
   return CustomTransitionPage<void>(
     key: state.pageKey,
@@ -82,8 +69,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.signup,
         pageBuilder: (context, state) => _fadePage(state, const SignUpPage()),
       ),
-      // Full-screen flow pushed on top of the shell — not a tab, so it
-      // doesn't sit inside StatefulShellRoute below.
       GoRoute(
         path: AppRoutes.deposit,
         pageBuilder: (context, state) => _fadePage(state, const DepositPage()),

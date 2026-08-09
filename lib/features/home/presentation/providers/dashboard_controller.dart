@@ -5,8 +5,6 @@ import '../../../../core/di/injection.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../transactions/domain/entities/transaction_entity.dart';
 
-/// How many transactions the dashboard previews — the full paginated list
-/// is Phase 7's job, this is just a taste of recent activity.
 const int _recentTransactionsLimit = 5;
 
 class DashboardState extends Equatable {
@@ -79,8 +77,6 @@ class DashboardController extends StateNotifier<DashboardState> {
     final userResult = results[0];
     final transactionsResult = results[1];
 
-    // Surface the first failure — either call failing means the dashboard
-    // can't render meaningfully.
     final failure =
         userResult.fold((f) => f, (_) => null) ??
         transactionsResult.fold((f) => f, (_) => null);

@@ -4,8 +4,6 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'press_scale.dart';
 
-/// The app's primary CTA — a gradient pill with tactile press feedback,
-/// matching the language established on the splash/onboarding screens.
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
@@ -19,8 +17,6 @@ class AppButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isLoading;
 
-  /// Solid error-red instead of the primary gradient — for destructive
-  /// actions (e.g. logout) that shouldn't look like the default CTA.
   final bool destructive;
 
   @override

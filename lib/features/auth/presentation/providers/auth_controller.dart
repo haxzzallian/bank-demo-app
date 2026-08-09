@@ -45,10 +45,6 @@ class AuthController extends StateNotifier<AuthState> {
 
   final AuthRepository _repository;
 
-  /// Hydrates session state from a persisted token on cold start. Must be
-  /// awaited before the router makes its first redirect decision — otherwise
-  /// a valid, persisted session still reads as unauthenticated and gets
-  /// bounced back to login on the next router rebuild.
   Future<void> checkAuthStatus() async {
     state = state.copyWith(isLoading: true);
 
@@ -65,7 +61,6 @@ class AuthController extends StateNotifier<AuthState> {
 
     result.fold(
       (failure) async {
-        // Stored token is invalid/expired — clear it and fall back to login.
         await TokenStorage.instance.clearToken();
         state = state.copyWith(
           status: AuthStatus.unauthenticated,

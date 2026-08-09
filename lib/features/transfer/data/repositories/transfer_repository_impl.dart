@@ -1,20 +1,18 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/dio_error_mapper.dart';
-import '../../../../core/utils/idempotency.dart';
-import '../../../transactions/data/models/transaction_model.dart';
 import '../../domain/entities/recipient_entity.dart';
 import '../../domain/entities/transfer_result_entity.dart';
 import '../../domain/repositories/transfer_repository.dart';
-import '../models/recipient_model.dart';
+import '../datasources/transfer_remote_datasource.dart';
 
 class TransferRepositoryImpl implements TransferRepository {
-  TransferRepositoryImpl(this._dioClient);
+  TransferRepositoryImpl(this._remoteDataSource);
 
-  final DioClient _dioClient;
+  final TransferRemoteDataSource _remoteDataSource;
 
   @override
   Future<Either<Failure, List<RecipientEntity>>> getDirectory({
@@ -22,24 +20,15 @@ class TransferRepositoryImpl implements TransferRepository {
     int offset = 0,
   }) async {
     try {
-      final response = await _dioClient.dio.get(
-        '/accounts/list',
-        queryParameters: {'limit': limit, 'offset': offset},
+      final recipients = await _remoteDataSource.getDirectory(
+        limit: limit,
+        offset: offset,
       );
-
-      final payload = response.data;
-      if (payload is! Map<String, dynamic> || payload['data'] is! List) {
-        return const Left(ServerFailure('Invalid directory response.'));
-      }
-
-      final recipients = (payload['data'] as List)
-          .whereType<Map<String, dynamic>>()
-          .map((json) => RecipientModel.fromJson(json).toEntity())
-          .toList();
-
-      return Right(recipients);
+      return Right(recipients.map((model) => model.toEntity()).toList());
     } on DioException catch (error) {
       return Left(mapDioError(error));
+    } on ServerException catch (error) {
+      return Left(ServerFailure(error.message));
     }
   }
 
@@ -58,43 +47,15 @@ class TransferRepositoryImpl implements TransferRepository {
     }
 
     try {
-      final response = await _dioClient.dio.post(
-        '/accounts/transfer',
-        data: {'phoneNumber': phoneNumber.trim(), 'amount': amount},
-        options: Options(
-          headers: {'Idempotency-Key': generateIdempotencyKey()},
-        ),
+      final result = await _remoteDataSource.transfer(
+        phoneNumber: phoneNumber.trim(),
+        amount: amount,
       );
-
-      final payload = response.data;
-      if (payload is! Map<String, dynamic> ||
-          payload['data'] is! Map<String, dynamic>) {
-        return const Left(ServerFailure('Invalid transfer response.'));
-      }
-
-      final data = payload['data'] as Map<String, dynamic>;
-      final sent = (data['sent'] as num?)?.toDouble();
-      final to = data['to']?.toString();
-      final balance = (data['balance'] as num?)?.toDouble();
-      final transactionJson = data['transaction'];
-
-      if (sent == null ||
-          to == null ||
-          balance == null ||
-          transactionJson is! Map<String, dynamic>) {
-        return const Left(ServerFailure('Invalid transfer response.'));
-      }
-
-      return Right(
-        TransferResultEntity(
-          sent: sent,
-          to: to,
-          balance: balance,
-          transaction: TransactionModel.fromJson(transactionJson).toEntity(),
-        ),
-      );
+      return Right(result.toEntity());
     } on DioException catch (error) {
       return Left(mapDioError(error));
+    } on ServerException catch (error) {
+      return Left(ServerFailure(error.message));
     }
   }
 }

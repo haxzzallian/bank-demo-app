@@ -13,11 +13,6 @@ import '../../../../core/widgets/retry_error_view.dart';
 import '../../../../core/widgets/shimmer_box.dart';
 import '../../../home/presentation/providers/dashboard_controller.dart';
 
-/// The Profile tab — replaces the Phase 3/4 "coming soon" placeholder.
-///
-/// Reuses `dashboardControllerProvider` as the source for phone number and
-/// balance (the same cached snapshot Deposit/Withdraw/Transfer already read
-/// for their balance checks) rather than fetching independently.
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
@@ -29,7 +24,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Harmless if the dashboard already loaded this — just re-fetches.
     Future.microtask(() {
       final state = ref.read(dashboardControllerProvider);
       if (!state.hasData) {
@@ -48,8 +42,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
     if (confirmed != true) return;
     if (!mounted) return;
-    // The router's redirect/refreshListenable handles navigating back to
-    // /login automatically once auth state flips — no manual nav needed.
     await ref.read(authControllerProvider.notifier).logout();
   }
 
@@ -81,16 +73,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     if (state.isLoading) {
       return SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            const ShimmerBox(width: 88, height: 88, borderRadius: 44),
-            const SizedBox(height: 24),
-            const ShimmerBox(
-              width: double.infinity,
-              height: 180,
-              borderRadius: 20,
-            ),
-          ],
+        child: ShimmerGroup(
+          child: Column(
+            children: [
+              const ShimmerBox(width: 88, height: 88, borderRadius: 44),
+              const SizedBox(height: 24),
+              const ShimmerBox(
+                width: double.infinity,
+                height: 180,
+                borderRadius: 20,
+              ),
+            ],
+          ),
         ),
       );
     }

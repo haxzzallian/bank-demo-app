@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 
-/// Content + visual styling for a single onboarding slide.
 class OnboardingSlideData {
   const OnboardingSlideData({
     required this.title,
@@ -28,9 +27,6 @@ class OnboardingSlideData {
   final String bottomChipValue;
 }
 
-/// A glassmorphic hero illustration for an onboarding slide: a glowing
-/// gradient icon orb with floating frosted-glass detail chips, in place of
-/// the flat "fake UI" mockups the previous design used.
 class OnboardingIllustration extends StatelessWidget {
   const OnboardingIllustration({super.key, required this.step});
 
@@ -97,8 +93,6 @@ class OnboardingIllustration extends StatelessWidget {
   }
 }
 
-/// Gives its child a slow, organic vertical bob. Each instance can be offset
-/// with [phase] so multiple floating elements don't move in lockstep.
 class _FloatingElement extends StatefulWidget {
   const _FloatingElement({
     required this.child,

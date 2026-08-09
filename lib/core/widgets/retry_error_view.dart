@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// The "icon + message + Retry" pattern shared by every screen that can
-/// fail an initial load (Dashboard, Transfer's recipient directory,
-/// Transactions) — was duplicated across all three before this.
 class RetryErrorView extends StatelessWidget {
   const RetryErrorView({
     super.key,

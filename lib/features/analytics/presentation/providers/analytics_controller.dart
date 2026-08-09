@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/injection.dart';
 import '../../../transactions/domain/entities/transaction_entity.dart';
 
-/// One bar-group's worth of aggregated activity — a day or a month,
-/// depending on which chart it feeds.
 class AnalyticsBucket extends Equatable {
   const AnalyticsBucket({
     required this.label,

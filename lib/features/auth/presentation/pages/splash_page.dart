@@ -46,10 +46,6 @@ class _SplashPageState extends ConsumerState<SplashPage>
     final entrance = Future<void>.delayed(const Duration(milliseconds: 1100));
     final hasOnboarded = await OnboardingStorage.instance
         .hasCompletedOnboarding();
-    // Hydrates AuthController's state from the persisted token *before* the
-    // router makes its first redirect decision — otherwise a valid session
-    // still reads as unauthenticated and gets bounced back to login on the
-    // next router rebuild.
     await ref.read(authControllerProvider.notifier).checkAuthStatus();
     await entrance;
 

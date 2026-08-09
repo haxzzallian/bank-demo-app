@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Wraps a list item so it fades + slides in shortly after the items before
-/// it — a subtle staggered entrance for the Transactions and Transfer
-/// recipient lists, rather than everything popping in at once.
 class StaggeredFadeIn extends StatefulWidget {
   const StaggeredFadeIn({super.key, required this.index, required this.child});
 
@@ -19,7 +16,6 @@ class _StaggeredFadeInState extends State<StaggeredFadeIn> {
   @override
   void initState() {
     super.initState();
-    // Cap the stagger so long lists don't leave later items waiting ages.
     final delayMs = 30 * widget.index.clamp(0, 10);
     Future.delayed(Duration(milliseconds: delayMs), () {
       if (mounted) setState(() => _visible = true);

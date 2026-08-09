@@ -7,15 +7,6 @@ import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../domain/entities/transaction_entity.dart';
 
-/// The full-detail transaction card for the Transactions list — richer
-/// than the dashboard's compact preview tile, showing every field the
-/// project's checklist asks for: type, amount, date, time, balance-after,
-/// counterparty, status.
-///
-/// There's no `status` field in the API's `Transaction` schema — every
-/// transaction `GET /transactions` returns is already settled, so
-/// "Completed" here reflects that truthfully rather than inventing states
-/// the API doesn't model (see API_RULES.md: don't invent fields).
 class TransactionListTile extends StatelessWidget {
   const TransactionListTile({super.key, required this.transaction});
 

@@ -5,11 +5,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
-/// A slow, continuously drifting gradient backdrop with soft blurred orbs.
-///
-/// Used behind the splash and onboarding screens to give a premium, "alive"
-/// first impression without being distracting — motion is subtle and never
-/// draws attention away from the foreground content.
 class AnimatedAuroraBackground extends StatefulWidget {
   const AnimatedAuroraBackground({super.key, this.child});
 

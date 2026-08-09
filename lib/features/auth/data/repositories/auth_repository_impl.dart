@@ -1,20 +1,19 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/dio_error_mapper.dart';
 import '../../../../core/services/token_storage.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../models/user_model.dart';
+import '../datasources/auth_remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._dioClient);
+  AuthRepositoryImpl(this._remoteDataSource);
 
-  final DioClient _dioClient;
+  final AuthRemoteDataSource _remoteDataSource;
 
-  // Account number == phone number, digits only, per API_RULES.md.
   final RegExp _phonePattern = RegExp(r'^[0-9]{10,15}$');
 
   @override
@@ -34,14 +33,16 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     try {
-      final response = await _dioClient.dio.post(
-        '/auth/login',
-        data: {'phoneNumber': trimmedPhoneNumber, 'password': trimmedPassword},
+      final result = await _remoteDataSource.login(
+        phoneNumber: trimmedPhoneNumber,
+        password: trimmedPassword,
       );
-
-      return await _handleAuthResponse(response);
+      await TokenStorage.instance.saveToken(result.token);
+      return Right(result.user.toEntity());
     } on DioException catch (error) {
       return Left(mapDioError(error));
+    } on ServerException catch (error) {
+      return Left(ServerFailure(error.message));
     }
   }
 
@@ -62,39 +63,31 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     try {
-      final response = await _dioClient.dio.post(
-        '/auth/signup',
-        data: {'phoneNumber': trimmedPhoneNumber, 'password': trimmedPassword},
+      final result = await _remoteDataSource.register(
+        phoneNumber: trimmedPhoneNumber,
+        password: trimmedPassword,
       );
-
-      return await _handleAuthResponse(response);
+      await TokenStorage.instance.saveToken(result.token);
+      return Right(result.user.toEntity());
     } on DioException catch (error) {
       return Left(mapDioError(error));
+    } on ServerException catch (error) {
+      return Left(ServerFailure(error.message));
     }
   }
 
   @override
   Future<Either<Failure, UserEntity>> getCurrentUser() async {
     try {
-      final response = await _dioClient.dio.get('/auth/me');
-
-      final payload = response.data;
-      if (payload is! Map<String, dynamic> ||
-          payload['data'] is! Map<String, dynamic>) {
-        return const Left(ServerFailure('Invalid account response.'));
-      }
-
-      final userModel = UserModel.fromJson(
-        payload['data'] as Map<String, dynamic>,
-      );
-      return Right(userModel.toEntity());
+      final user = await _remoteDataSource.getCurrentUser();
+      return Right(user.toEntity());
     } on DioException catch (error) {
       return Left(mapDioError(error));
+    } on ServerException catch (error) {
+      return Left(ServerFailure(error.message));
     }
   }
 
-  /// Mirrors the `Credentials` schema: `phoneNumber` digits-only,
-  /// `password` 8–128 chars.
   String? _validateCredentials(String phoneNumber, String password) {
     if (phoneNumber.isEmpty || password.isEmpty) {
       return 'Phone number and password are required.';
@@ -106,33 +99,5 @@ class AuthRepositoryImpl implements AuthRepository {
       return 'Password must be between 8 and 128 characters.';
     }
     return null;
-  }
-
-  Future<Either<Failure, UserEntity>> _handleAuthResponse(
-    Response response,
-  ) async {
-    final payload = response.data;
-    if (payload is! Map<String, dynamic>) {
-      return const Left(ServerFailure('Invalid server response.'));
-    }
-
-    final data = payload['data'];
-    if (data is! Map<String, dynamic>) {
-      return const Left(ServerFailure('Invalid authentication response.'));
-    }
-
-    final token = data['token']?.toString() ?? '';
-    if (token.isEmpty) {
-      return const Left(ServerFailure('Authentication token is missing.'));
-    }
-
-    await TokenStorage.instance.saveToken(token);
-
-    if (data['user'] is! Map<String, dynamic>) {
-      return const Left(ServerFailure('Invalid account response.'));
-    }
-
-    final userModel = UserModel.fromJson(data['user'] as Map<String, dynamic>);
-    return Right(userModel.toEntity());
   }
 }

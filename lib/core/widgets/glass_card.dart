@@ -2,9 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-/// A frosted glass container used to house content over dark/gradient
-/// backgrounds (e.g. `AnimatedAuroraBackground`), per UI_GUIDELINES's
-/// "glass effects where appropriate".
 class GlassCard extends StatelessWidget {
   const GlassCard({super.key, required this.child, this.padding});
 

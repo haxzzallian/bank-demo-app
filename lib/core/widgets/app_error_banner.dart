@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// A compact inline error banner with its own background fill, so it stays
-/// legible whether it sits on a light surface or a dark/glass one.
 class AppErrorBanner extends StatelessWidget {
   const AppErrorBanner({super.key, required this.message});
 

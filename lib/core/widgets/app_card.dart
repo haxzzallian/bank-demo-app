@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// The white-card-with-soft-shadow pattern repeated across the app
-/// (transaction tiles, stat cards, chart cards, detail rows...) — was
-/// duplicated as identical `Container(decoration: BoxDecoration(...))`
-/// boilerplate in 10+ places before this.
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,

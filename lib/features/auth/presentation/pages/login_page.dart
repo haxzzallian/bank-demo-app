@@ -24,7 +24,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _passwordController = TextEditingController();
   String? _validationError;
 
-  // Account number == phone number, digits only, per API_RULES.md.
   static final RegExp _phonePattern = RegExp(r'^[0-9]{10,15}$');
 
   @override

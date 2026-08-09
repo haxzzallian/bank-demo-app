@@ -11,8 +11,6 @@ class QuickActionsRow extends StatelessWidget {
     this.onTransfer,
   });
 
-  /// Overrides the default "coming soon" snackbar once an action's screen
-  /// exists. History stays on the snackbar until its phase is built.
   final VoidCallback? onDeposit;
   final VoidCallback? onWithdraw;
   final VoidCallback? onTransfer;

@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_text_styles.dart';
 import 'app_card.dart';
 
-/// The "New Balance" row shown on Deposit/Withdraw/Transfer success
-/// views — was duplicated identically across all three.
 class BalanceSummaryCard extends StatelessWidget {
   const BalanceSummaryCard({
     super.key,

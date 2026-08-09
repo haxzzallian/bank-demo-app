@@ -4,7 +4,6 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_button.dart';
 
-/// A single label/value row shown in [showConfirmSheet].
 class ConfirmRow {
   const ConfirmRow(this.label, this.value);
 
@@ -12,9 +11,6 @@ class ConfirmRow {
   final String value;
 }
 
-/// A premium confirmation bottom sheet — "professional confirmation" step
-/// before a money-movement request fires. Returns `true` if the user
-/// confirmed, `false`/`null` if they cancelled or dismissed it.
 Future<bool?> showConfirmSheet(
   BuildContext context, {
   required String title,

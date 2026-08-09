@@ -8,9 +8,6 @@ import 'core/error/global_error_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Fonts are resolved from the bundled asset manifest only — never fetched
-  // over the network at runtime. `google_fonts` defaults this to `true`, so
-  // it has to be set explicitly here too, not just in dev/prod.
   GoogleFonts.config.allowRuntimeFetching = false;
   configureErrorHandling(showDetails: true);
   runApp(
