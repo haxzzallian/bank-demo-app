@@ -6,6 +6,27 @@ A Flutter mobile banking client built against the Veegil banking API.
 
 The signed release build for this submission is at [`submission/BankDump-OwolabiTemitopeAzeez-v1.0.0.apk`](submission/BankDump-OwolabiTemitopeAzeez-v1.0.0.apk).
 
+## Screenshots
+
+Captured live off the running app (`dev` flavor, Android emulator) — full-size images are in [`screenshots/`](screenshots/).
+
+<table>
+<tr>
+<td align="center"><img src="screenshots/01_onboarding.png" width="200" alt="Onboarding"><br>Onboarding</td>
+<td align="center"><img src="screenshots/02_login.png" width="200" alt="Login"><br>Login</td>
+<td align="center"><img src="screenshots/03_signup.png" width="200" alt="Signup"><br>Signup</td>
+<td align="center"><img src="screenshots/04_dashboard.png" width="200" alt="Dashboard"><br>Dashboard</td>
+<td align="center"><img src="screenshots/05_deposit.png" width="200" alt="Deposit"><br>Deposit</td>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/06_withdraw.png" width="200" alt="Withdraw"><br>Withdraw</td>
+<td align="center"><img src="screenshots/07_transfer.png" width="200" alt="Transfer"><br>Transfer</td>
+<td align="center"><img src="screenshots/08_transactions.png" width="200" alt="Transactions"><br>Transactions</td>
+<td align="center"><img src="screenshots/09_analytics.png" width="200" alt="Analytics"><br>Analytics</td>
+<td align="center"><img src="screenshots/10_profile.png" width="200" alt="Profile"><br>Profile</td>
+</tr>
+</table>
+
 ## Candidate
 
 **Owolabi Temitope Azeez** — submission for the Mobile Developer role at Veegil Technologies.
