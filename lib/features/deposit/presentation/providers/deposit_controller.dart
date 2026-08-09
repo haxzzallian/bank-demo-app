@@ -52,8 +52,6 @@ class DepositController extends StateNotifier<DepositState> {
     );
   }
 
-  /// Resets to a fresh form — used when the user deposits again from the
-  /// success view.
   void reset() => state = const DepositState();
 }
 

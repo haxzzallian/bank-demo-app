@@ -196,8 +196,6 @@ class _BalanceCardState extends State<BalanceCard> {
     required String semanticLabel,
     bool spinning = false,
   }) {
-    // 44x44 minimum tap target per UI_GUIDELINES's "large tap targets" —
-    // the icon itself stays visually compact inside it.
     return Tooltip(
       message: semanticLabel,
       child: GestureDetector(

@@ -1,7 +1,5 @@
 import '../../domain/entities/user_entity.dart';
 
-/// Generated strictly from the API's `User` schema — do not add fields the
-/// API doesn't return.
 class UserModel {
   const UserModel({
     required this.phoneNumber,

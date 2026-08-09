@@ -1,7 +1,5 @@
 import '../../domain/entities/transaction_entity.dart';
 
-/// Generated strictly from the API's `Transaction` schema — do not add
-/// fields the API doesn't return.
 class TransactionModel {
   const TransactionModel({
     required this.id,
@@ -54,7 +52,6 @@ class TransactionModel {
   }
 }
 
-/// Mirrors the API's `PageMeta` schema: `{ total, limit, offset, hasMore }`.
 class PageMetaModel {
   const PageMetaModel({
     required this.total,

@@ -9,8 +9,6 @@ import '../../../../core/widgets/staggered_fade_in.dart';
 import '../providers/transactions_list_controller.dart';
 import '../widgets/transaction_list_tile.dart';
 
-/// The full paginated transaction history — replaces the Phase 3/4
-/// "coming soon" placeholder that lived here.
 class TransactionsPage extends ConsumerStatefulWidget {
   const TransactionsPage({super.key});
 
@@ -71,14 +69,16 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
 
   Widget _buildBody(TransactionsListState state) {
     if (state.isLoading) {
-      return ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: 8,
-        separatorBuilder: (_, _) => const SizedBox(height: 10),
-        itemBuilder: (context, _) => const ShimmerBox(
-          width: double.infinity,
-          height: 78,
-          borderRadius: 18,
+      return ShimmerGroup(
+        child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: 8,
+          separatorBuilder: (_, _) => const SizedBox(height: 10),
+          itemBuilder: (context, _) => const ShimmerBox(
+            width: double.infinity,
+            height: 78,
+            borderRadius: 18,
+          ),
         ),
       );
     }

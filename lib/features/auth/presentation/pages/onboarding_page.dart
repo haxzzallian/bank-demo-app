@@ -237,9 +237,6 @@ class _OnboardingPageState extends State<OnboardingPage>
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // Cap the illustration so it never crowds out the copy below it —
-          // on short screens or with longer wrapped titles this keeps the
-          // slide fitting without clipping or overflow.
           final illustrationSize = math.min(
             constraints.maxWidth * 0.82,
             constraints.maxHeight * 0.46,

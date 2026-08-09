@@ -33,8 +33,6 @@ class _DepositPageState extends ConsumerState<DepositPage> {
   double? get _amount => double.tryParse(_amountController.text);
 
   void _selectPreset(double amount) {
-    // Dismiss the keyboard — the value is set programmatically, and leaving
-    // it open would cover the submit button below.
     FocusScope.of(context).unfocus();
     setState(() {
       _amountController.text = amount.toStringAsFixed(0);

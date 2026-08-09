@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// A scale+fade checkmark burst used on money-movement success screens
-/// (Deposit now, Withdraw/Transfer later) — plays once on mount.
 class SuccessCheck extends StatefulWidget {
   const SuccessCheck({super.key, this.size = 96});
 

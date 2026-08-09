@@ -2,8 +2,6 @@ import 'package:equatable/equatable.dart';
 
 enum TransactionType { credit, debit }
 
-/// Mirrors the API's `Transaction` shape exactly:
-/// `{ id, type, amount, phoneNumber, counterparty, balance, note, created }`.
 class TransactionEntity extends Equatable {
   const TransactionEntity({
     required this.id,
@@ -40,8 +38,6 @@ class TransactionEntity extends Equatable {
   ];
 }
 
-/// A page of transactions plus its pagination metadata, so callers (Phase 7's
-/// full history screen) can extend pagination without a repository change.
 class TransactionsPage extends Equatable {
   const TransactionsPage({
     required this.items,

@@ -9,7 +9,6 @@ class AppTheme {
         seedColor: AppColors.primary,
         brightness: Brightness.light,
         surface: AppColors.surface,
-        background: AppColors.background,
       ).copyWith(
         secondary: AppColors.secondary,
         onSecondary: Colors.white,
@@ -40,17 +39,19 @@ class AppTheme {
         onInverseSurface: AppColors.textPrimary,
       );
 
-  static ThemeData get light => _buildTheme(_lightColorScheme);
+  static ThemeData get light =>
+      _buildTheme(_lightColorScheme, AppColors.background);
 
-  static ThemeData get dark => _buildTheme(_darkColorScheme);
+  static ThemeData get dark =>
+      _buildTheme(_darkColorScheme, AppColors.darkBackground);
 
-  static ThemeData _buildTheme(ColorScheme colorScheme) {
+  static ThemeData _buildTheme(ColorScheme colorScheme, Color background) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
+      scaffoldBackgroundColor: background,
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.background,
+        backgroundColor: background,
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,

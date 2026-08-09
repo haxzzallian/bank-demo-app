@@ -14,7 +14,5 @@ abstract class AuthRepository {
     required String password,
   });
 
-  /// Fetches the currently authenticated user via `GET /auth/me`. Used to
-  /// hydrate session state on cold start and to refresh balance elsewhere.
   Future<Either<Failure, UserEntity>> getCurrentUser();
 }

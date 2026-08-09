@@ -7,8 +7,6 @@ import '../utils/currency_formatter.dart';
 
 const List<double> kDefaultAmountPresets = [1000, 5000, 10000, 50000];
 
-/// The big "₦ 0" amount field + preset chips row shared by Deposit,
-/// Withdraw, and Transfer — was duplicated across all three before this.
 class AmountEntry extends StatelessWidget {
   const AmountEntry({
     super.key,

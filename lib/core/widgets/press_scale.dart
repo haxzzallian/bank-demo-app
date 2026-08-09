@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Wraps a widget with a subtle scale-down animation on press, used for
-/// primary CTAs to give tactile, premium-feeling feedback.
 class PressScale extends StatefulWidget {
   const PressScale({
     super.key,

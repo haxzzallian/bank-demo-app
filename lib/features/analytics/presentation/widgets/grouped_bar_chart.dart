@@ -5,11 +5,6 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../providers/analytics_controller.dart';
 
-/// A grouped bar chart (Deposits vs Withdrawals, credit vs debit) reused
-/// for both the Monthly and Weekly Summary charts — one component instead
-/// of two near-identical ones. Hand-rolled (no charting dependency): plain
-/// animated `Container`s per the dataviz skill's bar-chart mark spec
-/// (≤24px thick, 4px rounded top, square baseline).
 class GroupedBarChart extends StatelessWidget {
   const GroupedBarChart({
     super.key,

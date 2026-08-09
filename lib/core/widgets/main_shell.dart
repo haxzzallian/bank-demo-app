@@ -4,9 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// The bottom-nav shell wrapping the app's 4 tab branches (Dashboard,
-/// Transactions, Analytics, Profile). Full-screen flows like Deposit are
-/// pushed as top-level routes outside this shell, not tabs.
 class MainShell extends StatelessWidget {
   const MainShell({super.key, required this.navigationShell});
 

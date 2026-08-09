@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 
 import '../../../transactions/domain/entities/transaction_entity.dart';
 
-/// Mirrors `DepositSuccess.data`: `{ deposited, balance, transaction }`.
 class DepositResultEntity extends Equatable {
   const DepositResultEntity({
     required this.deposited,

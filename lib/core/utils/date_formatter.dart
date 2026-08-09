@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 
-/// Shared date/time formatting for transaction lists and history screens.
 class DateFormatter {
   DateFormatter._();
 
@@ -8,7 +7,6 @@ class DateFormatter {
   static final DateFormat _dayMonth = DateFormat('d MMM');
   static final DateFormat _dayMonthYear = DateFormat('d MMM yyyy');
 
-  /// "Today, 10:32 AM" / "Yesterday, 4:05 PM" / "12 Mar" / "12 Mar 2024".
   static String relative(DateTime dateTime) {
     final now = DateTime.now();
     final local = dateTime.toLocal();
@@ -30,9 +28,6 @@ class DateFormatter {
 
   static String time(DateTime dateTime) => _time.format(dateTime.toLocal());
 
-  /// Plain absolute date, e.g. "12 Mar 2024" — for historical lists where
-  /// "Today"/"Yesterday" relative framing (see [relative]) reads worse than
-  /// just the date.
   static String date(DateTime dateTime) =>
       _dayMonthYear.format(dateTime.toLocal());
 }

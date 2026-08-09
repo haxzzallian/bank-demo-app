@@ -1,18 +1,17 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/dio_error_mapper.dart';
-import '../../../../core/utils/idempotency.dart';
-import '../../../transactions/data/models/transaction_model.dart';
 import '../../domain/entities/deposit_result_entity.dart';
 import '../../domain/repositories/deposit_repository.dart';
+import '../datasources/deposit_remote_datasource.dart';
 
 class DepositRepositoryImpl implements DepositRepository {
-  DepositRepositoryImpl(this._dioClient);
+  DepositRepositoryImpl(this._remoteDataSource);
 
-  final DioClient _dioClient;
+  final DepositRemoteDataSource _remoteDataSource;
 
   @override
   Future<Either<Failure, DepositResultEntity>> deposit({
@@ -25,40 +24,12 @@ class DepositRepositoryImpl implements DepositRepository {
     }
 
     try {
-      final response = await _dioClient.dio.post(
-        '/accounts/deposit',
-        data: {'amount': amount},
-        options: Options(
-          headers: {'Idempotency-Key': generateIdempotencyKey()},
-        ),
-      );
-
-      final payload = response.data;
-      if (payload is! Map<String, dynamic> ||
-          payload['data'] is! Map<String, dynamic>) {
-        return const Left(ServerFailure('Invalid deposit response.'));
-      }
-
-      final data = payload['data'] as Map<String, dynamic>;
-      final deposited = (data['deposited'] as num?)?.toDouble();
-      final balance = (data['balance'] as num?)?.toDouble();
-      final transactionJson = data['transaction'];
-
-      if (deposited == null ||
-          balance == null ||
-          transactionJson is! Map<String, dynamic>) {
-        return const Left(ServerFailure('Invalid deposit response.'));
-      }
-
-      return Right(
-        DepositResultEntity(
-          deposited: deposited,
-          balance: balance,
-          transaction: TransactionModel.fromJson(transactionJson).toEntity(),
-        ),
-      );
+      final result = await _remoteDataSource.deposit(amount: amount);
+      return Right(result.toEntity());
     } on DioException catch (error) {
       return Left(mapDioError(error));
+    } on ServerException catch (error) {
+      return Left(ServerFailure(error.message));
     }
   }
 }

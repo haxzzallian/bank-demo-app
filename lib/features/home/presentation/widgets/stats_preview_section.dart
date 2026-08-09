@@ -6,10 +6,6 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../transactions/domain/entities/transaction_entity.dart';
 
-/// A compact money-in vs money-out preview, computed from whatever recent
-/// transactions the dashboard already fetched. The full breakdown lives in
-/// Phase 8's Analytics screen — this is deliberately just a taste, and says
-/// so in its caption rather than implying it's a monthly total.
 class StatsPreviewSection extends StatelessWidget {
   const StatsPreviewSection({super.key, required this.transactions});
 
@@ -117,8 +113,6 @@ class _StatMeterTile extends StatelessWidget {
             style: AppTextStyles.title.copyWith(fontSize: 17),
           ),
           const SizedBox(height: 10),
-          // Meter: fill carries magnitude, track is a lighter step of the
-          // same hue so the proportion reads even before the label is read.
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: TweenAnimationBuilder<double>(

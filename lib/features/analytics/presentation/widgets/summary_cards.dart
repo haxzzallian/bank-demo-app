@@ -6,8 +6,6 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../providers/analytics_controller.dart';
 
-/// Four headline stat tiles — per the dataviz skill, values stay in ink;
-/// only the icon badge carries color/direction, never the text itself.
 class SummaryCards extends StatelessWidget {
   const SummaryCards({super.key, required this.state});
 

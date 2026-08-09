@@ -12,8 +12,6 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/glass_card.dart';
 import '../widgets/animated_aurora_background.dart';
 
-/// Only collects what `POST /auth/signup` accepts: `{ phoneNumber, password }`.
-/// The API has no name, email, or account-type field — do not add them back.
 class SignUpPage extends ConsumerStatefulWidget {
   const SignUpPage({super.key});
 
@@ -27,7 +25,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   final _confirmController = TextEditingController();
   String? _validationError;
 
-  // Account number == phone number, digits only, per API_RULES.md.
   static final RegExp _phonePattern = RegExp(r'^[0-9]{10,15}$');
 
   @override

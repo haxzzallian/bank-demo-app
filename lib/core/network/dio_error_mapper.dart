@@ -4,10 +4,6 @@ import 'package:dio/dio.dart';
 
 import '../error/failures.dart';
 
-/// Maps a [DioException] to the app's [Failure] hierarchy, reading the
-/// API's `ApiError` shape (`{ status, message, code, data }`) for a
-/// user-facing message where possible. Shared by every repository so error
-/// handling stays consistent instead of being reimplemented per feature.
 Failure mapDioError(DioException error) {
   if (error.type == DioExceptionType.connectionTimeout ||
       error.type == DioExceptionType.sendTimeout ||
@@ -48,9 +44,6 @@ Failure mapDioError(DioException error) {
   }
 }
 
-/// Extracts a user-facing message from the API's `ApiError` shape
-/// (`{ status, message, code, data }`), falling back to a couple of other
-/// common shapes in case the server ever deviates.
 String? _extractMessage(dynamic data) {
   try {
     if (data is String && data.isNotEmpty) return data;
@@ -64,8 +57,6 @@ String? _extractMessage(dynamic data) {
         return (data['errors'] as List).join(', ');
       }
     }
-  } catch (_) {
-    // Fall through to null below.
-  }
+  } catch (_) {}
   return null;
 }
