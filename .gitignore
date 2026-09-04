@@ -41,6 +41,7 @@ openapi.json
 .pub-cache/
 .pub/
 /build/
+/android/build/
 /coverage/
 
 # Symbolication related
